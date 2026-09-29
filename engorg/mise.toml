@@ -7,4 +7,4 @@ trivy = "0.74.0"
 
 # Read by config_sync.py, not mise.
 [_]
-CONFIG_SKIP = []
+CONFIG_SKIP = ["trivy.yml"]
