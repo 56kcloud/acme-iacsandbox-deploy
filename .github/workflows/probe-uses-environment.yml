@@ -1,0 +1,17 @@
+name: probe-uses-environment
+
+# Sandbox probe, expected to be rejected as invalid; see the deploy README.
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  via-reusable:
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/probe-interface.yml@main
+    environment: prodorg
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write

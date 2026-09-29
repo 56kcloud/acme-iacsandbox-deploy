@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#MISE description="Pin one env's terraform-<env>.yml (plan and apply) to a shared-repo commit"
+#USAGE arg "<env>" help="Environment directory, e.g. engorg"
+#USAGE arg "<sha>" help="Full 40-character commit SHA in the shared repo"
+#USAGE arg "<version>" help="Version comment, e.g. v0.1.0"
+set -euo pipefail
+repo=56kcloud/acme-iacplatform-githubworkflows
+env=${usage_env:?} sha=${usage_sha:?} version=${usage_version:?}
+[[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { echo "error: '$sha' is not a 40-character SHA" >&2; exit 1; }
+gh api "repos/$repo/commits/$sha" --jq .sha >/dev/null
+for stub in .github/workflows/terraform-"$env".yml; do
+  sed -E -i.bak "s#^([[:space:]]*uses:[[:space:]]*$repo/[^@]+)@[^[:space:]]+.*#\1@$sha \# $version#" "$stub" && rm "$stub.bak"
+  grep -E "uses:[[:space:]]*$repo/" "$stub"
+done
+echo "Now run: mise run config:sync $env"

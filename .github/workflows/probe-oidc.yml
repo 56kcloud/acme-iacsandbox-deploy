@@ -1,0 +1,64 @@
+name: probe-oidc
+
+# Sandbox probe; see the deploy README.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  CALLER_ENV: set-by-caller
+
+jobs:
+  no-environment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      id-token: write
+    steps:
+      - uses: 56kcloud/acme-iacplatform-githubworkflows/.github/actions/oidc-claims@main
+        with:
+          label: ${{ github.event_name }}, no environment
+
+  environment-engorg:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: engorg
+    permissions:
+      id-token: write
+    steps:
+      - uses: 56kcloud/acme-iacplatform-githubworkflows/.github/actions/oidc-claims@main
+        with:
+          label: ${{ github.event_name }}, environment engorg
+
+  environment-prodorg-no-deployment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment:
+      name: prodorg
+      deployment: false
+    permissions:
+      id-token: write
+    steps:
+      - uses: 56kcloud/acme-iacplatform-githubworkflows/.github/actions/oidc-claims@main
+        with:
+          label: ${{ github.event_name }}, environment prodorg (deployment false)
+
+  via-reusable:
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/probe-interface.yml@main
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    secrets:
+      probe-secret: ${{ secrets.PROBE_SECRET }}
+      probe-multiline-secret: ${{ secrets.PROBE_MULTILINE_SECRET }}
+
+  mise:
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/probe-mise.yml@main
+    permissions:
+      contents: read

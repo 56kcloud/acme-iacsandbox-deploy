@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Check an env dir's vendored configs match the SHA its stubs pin"
+#USAGE arg "<env>" help="Environment directory, e.g. engorg"
+set -euo pipefail
+exec "$MISE_PROJECT_ROOT/.mise/config-run.sh" check "${usage_env:?}"

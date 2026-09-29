@@ -1,0 +1,10 @@
+min_version = "2026.9.16"
+
+[tools]
+terraform = "1.14.2"
+tflint = "0.64.0"
+trivy = "0.74.0"
+
+# Read by config_sync.py, not mise.
+[_]
+CONFIG_SKIP = []
