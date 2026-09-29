@@ -2,7 +2,7 @@
 set -euo pipefail
 mode=$1 env=$2
 repo=56kcloud/acme-iacplatform-githubworkflows
-stub=".github/workflows/terraform-$env.yml"
+stub=".github/workflows/deploy-$env.yml"
 [[ -f "$stub" ]] || { echo "error: no $stub; is '$env' an env directory?" >&2; exit 1; }
 sha=$(grep -E "^[[:space:]]*uses:[[:space:]]*$repo/" "$stub" | grep -oE '@[0-9a-f]{40}' | head -1 | tr -d @ || true)
 [[ -n "$sha" ]] || { echo "error: $stub does not pin $repo by 40-character SHA" >&2; exit 1; }

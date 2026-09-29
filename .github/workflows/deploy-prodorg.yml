@@ -1,0 +1,34 @@
+name: Deploy prodorg
+
+on:
+  push:
+    branches: [main]
+    paths: ['prodorg/**', '.github/workflows/deploy-prodorg.yml']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform action to perform'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@6856b2d1b4d5ee611f24bf37a80be72029d7fa37 # v0.1.1
+    permissions:
+      contents: read
+      id-token: write       # OIDC for AWS credentials
+      pull-requests: write  # Terraform plan as PR comment
+    with:
+      deploy-env: prodorg
+      action: ${{ inputs.action }}
+    secrets:
+      GITHUBMCH_REPOS_READ_APP_PRIVATE_KEY: ${{ secrets.GITHUBMCH_REPOS_READ_APP_PRIVATE_KEY }}
+      TFC_REGISTRY_READ_TOKEN: ${{ secrets.TFC_REGISTRY_READ_TOKEN }}

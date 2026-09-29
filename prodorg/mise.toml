@@ -1,9 +1,11 @@
-min_version = "2026.9.16"
+min_version = "2026.3.4"
 
 [tools]
 terraform = "1.14.2"
 tflint = "0.64.0"
 trivy = "0.74.0"
+terraform-docs = "0.24.0"
+checkov = "3.3.20"
 
 # Read by config_sync.py, not mise.
 [_]
