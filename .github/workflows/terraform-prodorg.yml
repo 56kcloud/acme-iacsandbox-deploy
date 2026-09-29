@@ -21,14 +21,14 @@ permissions: {}
 
 jobs:
   plan:
-    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-plan.yml@b13da41c3b7db5029012ef2ac18987585715283c # v0.0.1
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-plan.yml@87bd4d602fdbd3b1d20b5f7528cba66a8abbcada # v0.0.2
     permissions:
       contents: read
       id-token: write
     with:
       working-directory: prodorg
       aws-role-arn: ${{ vars.AWS_ROLE_ARN_PRODORG }}
-      app-id: ${{ vars.SHARED_WORKFLOWS_APP_ID }}
+      client-id: ${{ vars.SHARED_WORKFLOWS_APP_CLIENT_ID }}
     secrets:
       app-private-key: ${{ secrets.SHARED_WORKFLOWS_APP_PRIVATE_KEY }}
 
@@ -36,7 +36,7 @@ jobs:
     needs: plan
     # No ref check: an apply dispatched from a branch must fail in "Require main", not skip.
     if: github.event_name == 'push' || inputs.action == 'apply'
-    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@b13da41c3b7db5029012ef2ac18987585715283c # v0.0.1
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@87bd4d602fdbd3b1d20b5f7528cba66a8abbcada # v0.0.2
     permissions:
       contents: read
       id-token: write
@@ -44,6 +44,6 @@ jobs:
       working-directory: prodorg
       plan-artifact: ${{ needs.plan.outputs.plan-artifact }}
       aws-role-arn: ${{ vars.AWS_ROLE_ARN_PRODORG }}
-      app-id: ${{ vars.SHARED_WORKFLOWS_APP_ID }}
+      client-id: ${{ vars.SHARED_WORKFLOWS_APP_CLIENT_ID }}
     secrets:
       app-private-key: ${{ secrets.SHARED_WORKFLOWS_APP_PRIVATE_KEY }}
