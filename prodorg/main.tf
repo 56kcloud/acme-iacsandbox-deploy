@@ -14,5 +14,6 @@ terraform {
 resource "null_resource" "probe" {
   triggers = {
     env = "prodorg"
+    rev = "1"
   }
 }
