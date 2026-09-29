@@ -18,7 +18,7 @@ permissions: {}
 
 jobs:
   plan-prodorg:
-    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-plan.yml@641caa87189e85ae2785ac3ffec046172c25ca30 # v0.0.3
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-plan.yml@0babc1d18868533aa00e01544170d8ddded41fa5 # v0.0.4
     permissions:
       contents: read
       id-token: write
@@ -33,7 +33,7 @@ jobs:
     needs: plan-prodorg
     # No ref check: an apply dispatched from a branch must fail in "Require main", not skip.
     if: github.event_name == 'push' || inputs.action == 'apply'
-    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@641caa87189e85ae2785ac3ffec046172c25ca30 # v0.0.3
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@0babc1d18868533aa00e01544170d8ddded41fa5 # v0.0.4
     permissions:
       contents: read
       id-token: write
