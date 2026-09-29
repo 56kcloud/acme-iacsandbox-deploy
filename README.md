@@ -53,6 +53,21 @@ mise run config:sync engorg            # vendor configs at that SHA
 mise run config:check engorg           # what CI checks
 ```
 
+### Owning a config file
+
+Listing a file in `CONFIG_SKIP` (under `[_]` in the env's `mise.toml`) makes
+the env's copy the one CI uses, unchecked against the shared repo. That can
+weaken scanning without anyone noticing:
+
+- trivy's `severity` is an exact list, not a threshold. Replacing `HIGH` with
+  `MEDIUM` stops HIGH findings being reported at all. A local `trivy.yaml`
+  must keep `HIGH` and `CRITICAL` and add levels, never swap them.
+- `.trivyignore` entries need a reason and an expiry, as its header says.
+
+CODEOWNERS gives the platform team every env's `mise.toml` and scanner
+configs, so owning or editing one needs their review. It only takes effect
+with branch protection on `main` requiring code owner review.
+
 ## One-time setup
 
 1. **Shared repo access.** The shared repo and this repo are public, so any

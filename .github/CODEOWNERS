@@ -1,2 +1,7 @@
-/.github/ @jbi89
-/prodorg/    @jbi89
+/.github/        @jbi89
+/prodorg/        @jbi89
+/*/mise.toml     @jbi89
+/*/trivy.yaml    @jbi89
+/*/.trivyignore  @jbi89
+/*/.tflint.hcl   @jbi89
+/*/.checkov.yml  @jbi89
