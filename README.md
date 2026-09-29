@@ -64,64 +64,22 @@ mise run config:check engorg           # what CI checks
    is what they can read: the shared repo and every private module repo.
    Reusable workflows check themselves out at `job.workflow_sha`, and a
    caller's `GITHUB_TOKEN` can't read another private repo. In this repo, set
-   the variable `SHARED_WORKFLOWS_APP_ID` and the secret
+   the variable `SHARED_WORKFLOWS_APP_CLIENT_ID` and the secret
    `SHARED_WORKFLOWS_APP_PRIVATE_KEY`.
 3. **Environments** `engorg` and `prodorg`, deployment branch policy `main`
    only, with a required reviewer on `prodorg`. On GitHub Team, required
    reviewers work only in public repos, which is why this repo is public.
-4. **Probe secrets**, both **dummy values**, because the composite probe
-   deliberately prints a transformed copy: `PROBE_SECRET` (any string) and
-   `PROBE_MULTILINE_SECRET` (a fake PEM-shaped multi-line block).
-5. Push the shared repo, then `mise run stubs:pin <env> <sha> v0.0.1` and
+4. Push the shared repo, then `mise run stubs:pin <env> <sha> <version>` and
    `mise run config:sync <env>` for both envs.
-6. Optional: protect `main` with required code owner review, to test
+5. Optional: protect `main` with required code owner review, to test
    CODEOWNERS.
-7. Later, with a bootstrapped account: set `AWS_ROLE_ARN_ENGORG` and
+6. Later, with a bootstrapped account: set `AWS_ROLE_ARN_ENGORG` and
    `AWS_ROLE_ARN_PRODORG` repo variables. While they're unset, nothing
    assumes a role.
 
-## What each question is answered by
+## Probes
 
-| question | run | look at |
-|---|---|---|
-| mise per-env versions | `probe-oidc` → `mise` matrix (any trigger) | Step summary table per `working_directory` (unset / engorg / prodorg): which terraform runs from `.`, `engorg`, `prodorg`, `$RUNNER_TEMP`. Does the exported install path beat the cwd-sensitive shims? |
-| …and in the real workflow | `terraform-engorg`, `terraform-prodorg` on a PR | "Resolved tools" summary; the verify step fails if mise and PATH disagree |
-| `environment: { deployment: false }` | `probe-oidc` on a PR | Does `environment-prodorg-no-deployment` wait for review? (Docs say yes.) |
-| `sub` per trigger | `probe-oidc` on PR, on push to main, and by dispatch | Claims JSON in each job's summary: `sub`, `ref`, `environment`, `workflow_ref`, `job_workflow_ref` |
-| `sub` via reusable workflow | same, `via-reusable` job | `job_workflow_ref` should name the shared repo at `@main` |
-| permissions not inherited | dispatch `probe-permissions-denied` | Expected: fails before start. Record the message. |
-| `environment:` on a `uses:` job | `probe-uses-environment` | Expected: invalid workflow file (actionlint already rejects it). Record where GitHub surfaces it. |
-| `env:` crossing the boundary | `via-reusable` summary | `CALLER_ENV` should be `<unset>` |
-| optional secret not passed | `via-reusable` summary | `unpassed optional secret == ''` should be `true` |
-| secrets as composite inputs | `via-reusable` log | Direct echo masked? Reversed copy not masked? Every line of the multi-line secret masked? |
-| config sync | PR changing `engorg/trivy.yaml` | `Vendored config check` fails with diff and fix command |
-| dispatch main-only guard | dispatch `terraform-engorg` with `apply` from a branch | Red `Require main` step, not a green skip |
-| plan → approve → apply | push to `main` touching `prodorg/` | Apply job waits for review; its summary shows the plan being applied; the log shows `apply tfplan`, no second plan |
-| concurrency while awaiting approval | push twice to `main` while the first apply waits for approval | Does the waiting apply hold the concurrency group (second run's plan pending)? |
-| `sub` shapes the one role must allow | `probe-oidc`, and the plan/apply jobs' claims | Exact list for the trust policy, instead of `repo:<org>/<repo>:*` |
-| private module over git | `terraform-engorg` on a PR (needs infra tag `v0.1.0`) | `terraform init` downloads `label`; plan shows `label_id` |
-
-## Results
-
-Fill in as runs complete. Link the run.
-
-| question | result | run |
-|---|---|---|
-| mise: working_directory unset | | |
-| mise: working_directory engorg | | |
-| mise: working_directory prodorg | | |
-| deployment: false pauses on PR | | |
-| sub: pull_request, no env | | |
-| sub: pull_request, env | | |
-| sub: push main, no env / env | | |
-| sub: workflow_dispatch | | |
-| job_workflow_ref format (SHA pin) | | |
-| permissions denied message | | |
-| uses + environment error | | |
-| CALLER_ENV across boundary | | |
-| unpassed secret | | |
-| composite secret masking | | |
-| private module fetch | | |
-| apply uses the plan artifact | | |
-| concurrency while awaiting approval | | |
-| sub shapes for the one role | | |
+The probe workflows used to validate this setup (OIDC claims, environments,
+reusable-workflow interface, secret masking, mise resolution) were removed
+after testing. They are in git history at `f399c47` here and `641caa8` in the
+shared repo.
