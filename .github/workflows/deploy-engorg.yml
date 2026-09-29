@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   deploy:
-    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@54a8297e18f9b00a462b30eec1faf3d24933093d # v0.1.0
+    uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@6856b2d1b4d5ee611f24bf37a80be72029d7fa37 # v0.1.1
     permissions:
       contents: read
       id-token: write       # OIDC for AWS credentials
