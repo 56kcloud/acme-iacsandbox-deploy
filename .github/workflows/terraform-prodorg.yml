@@ -2,9 +2,6 @@ name: terraform-prodorg
 
 on:
   pull_request:
-    paths:
-      - prodorg/**
-      - .github/workflows/terraform-prodorg.yml
   push:
     branches: [main]
     paths:
@@ -20,7 +17,7 @@ on:
 permissions: {}
 
 jobs:
-  plan:
+  plan-prodorg:
     uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-plan.yml@641caa87189e85ae2785ac3ffec046172c25ca30 # v0.0.3
     permissions:
       contents: read
@@ -32,8 +29,8 @@ jobs:
     secrets:
       app-private-key: ${{ secrets.SHARED_WORKFLOWS_APP_PRIVATE_KEY }}
 
-  apply:
-    needs: plan
+  apply-prodorg:
+    needs: plan-prodorg
     # No ref check: an apply dispatched from a branch must fail in "Require main", not skip.
     if: github.event_name == 'push' || inputs.action == 'apply'
     uses: 56kcloud/acme-iacplatform-githubworkflows/.github/workflows/terraform-deploy.yml@641caa87189e85ae2785ac3ffec046172c25ca30 # v0.0.3
@@ -42,7 +39,7 @@ jobs:
       id-token: write
     with:
       working-directory: prodorg
-      plan-artifact: ${{ needs.plan.outputs.plan-artifact }}
+      plan-artifact: ${{ needs.plan-prodorg.outputs.plan-artifact }}
       aws-role-arn: ${{ vars.AWS_ROLE_ARN_PRODORG }}
       client-id: ${{ vars.SHARED_WORKFLOWS_APP_CLIENT_ID }}
     secrets:

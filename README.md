@@ -6,7 +6,10 @@ It stands in for a foundation deploy repo: `engorg/` and `prodorg/` are environm
 directories with a `null_resource` and a local backend.
 
 One workflow per env, `.github/workflows/terraform-<env>.yml`, on
-`pull_request`, push to `main`, and `workflow_dispatch` (`plan`/`apply`):
+`pull_request`, push to `main`, and `workflow_dispatch` (`plan`/`apply`).
+Every PR plans every env, with no path filter, so each env's plan
+(`plan-<env> / plan`) can be a required check; a path-filtered check that never
+runs would block the PR.
 
 - **`plan` job** (shared `terraform-plan.yml`, no `environment:`): plans every
   time. On PRs it also scans. It uploads `tfplan`, `plan.txt`
