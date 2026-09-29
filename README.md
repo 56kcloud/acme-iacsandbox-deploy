@@ -103,7 +103,7 @@ mise run config:check engorg           # what CI checks
 
 ## Results
 
-Fill in as runs complete. Link the run.
+Fill in as runs complete. Link the run. (Runs recorded from the sandbox push, dispatch and a probe PR.)
 
 | question | result | run |
 |---|---|---|
