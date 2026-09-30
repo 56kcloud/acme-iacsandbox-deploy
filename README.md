@@ -49,8 +49,8 @@ mise run config:sync engorg    # vendor configs at the SHA deploy-engorg.yml pin
 mise run config:check engorg   # what CI checks
 ```
 
-The tasks live in the root `mise.toml`. Each one fetches `config_sync.py` from
-the shared repo, which re-runs itself at the version the stub pins. To upgrade
+The tasks live in the root `mise.toml`. Each one runs `config_sync.py` from the
+shared repo, which takes the configs at the SHA the env's stub pins. To upgrade
 an env, change its stub's `uses:` SHA and version comment, then run
 `config:sync` for it. Upgrade `engorg` first, then `prodorg`.
 
