@@ -28,7 +28,7 @@ all branches.
 There is no root `mise.toml`. Every tool pin lives in the env directory, so
 scanner upgrades roll engorg → prodorg the same way Terraform does. The cost is
 that engorg and prodorg can drift for tools other than Terraform, which is
-deliberate; group the bumps in Renovate.
+deliberate.
 
 Without a root config, a job that forgets mise-action's `working_directory`
 installs nothing:
@@ -45,10 +45,21 @@ Vendored configs in each env dir (`.tflint.hcl`, `trivy.yaml`, `.trivyignore`,
 `.checkov.yml`, `.terraform-docs.yml`) must match the shared repo at the SHA that env's stubs pin.
 
 ```sh
-mise run stubs:pin engorg <sha> v0.1.0  # repin deploy-engorg.yml
-mise run config:sync engorg            # vendor configs at that SHA
-mise run config:check engorg           # what CI checks
+# vendor configs at the SHA deploy-engorg.yml pins (check instead of sync to verify)
+gh api -H 'Accept: application/vnd.github.raw' \
+  repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
+  | mise x python@3.12 -- python3 - sync --env-dir engorg
 ```
+
+To upgrade an env, pin its stub to a new tag; that also syncs its configs:
+
+```sh
+gh api -H 'Accept: application/vnd.github.raw' \
+  repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
+  | mise x python@3.12 -- python3 - pin --env-dir engorg --version v0.1.3
+```
+
+Pin `engorg` first, then `prodorg`. There are no repo-local scripts.
 
 ### Owning a config file
 
@@ -83,13 +94,11 @@ with branch protection on `main` requiring code owner review.
    reviewers work only in public repos, which is why this repo is public.
    "Require main for apply" in the shared workflow stops applies from other
    branches.
-4. Push the shared repo, then `mise run stubs:pin <env> <sha> <version>` and
-   `mise run config:sync <env>` for both envs.
+4. Push the shared repo, then run the `pin` command above for each env.
 5. Optional: protect `main` with required code owner review, to test
    CODEOWNERS.
-6. Later, with a bootstrapped account: set `AWS_ROLE_ARN_ENGORG` and
-   `AWS_ROLE_ARN_PRODORG` repo variables. While they're unset, nothing
-   assumes a role.
+6. Later, with a bootstrapped account: pass `aws-account-id` in the stubs.
+   While it's empty, the workflow skips AWS credentials.
 
 ## Probes
 
