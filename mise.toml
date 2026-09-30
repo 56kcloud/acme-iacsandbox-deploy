@@ -22,7 +22,7 @@ gh api -H 'Accept: application/vnd.github.raw' \
   | mise x python@3.12 -- python3 - check --env-dir "${usage_env}"
 """
 
-[tasks."config:pin"]
+[tasks."workflows:pin"]
 description = "Pin an env's deploy stub to a shared-repo tag, then sync its configs"
 usage = '''
 arg "<env>" help="Environment directory, e.g. engorg"
