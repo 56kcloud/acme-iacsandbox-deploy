@@ -1,0 +1,23 @@
+# Tasks only. Tool versions are pinned per env in <env>/mise.toml.
+
+[tasks."config:sync"]
+description = "Vendor configs/deploy into an env dir at the SHA its stub pins"
+usage = 'arg "<env>" help="Environment directory, e.g. engorg"'
+shell = "bash -c"
+run = """
+set -euo pipefail
+gh api -H 'Accept: application/vnd.github.raw' \
+  repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
+  | mise x python@3.12 -- python3 - sync --env-dir "${usage_env}"
+"""
+
+[tasks."config:check"]
+description = "Check an env dir's vendored configs match the SHA its stub pins, as CI does"
+usage = 'arg "<env>" help="Environment directory, e.g. engorg"'
+shell = "bash -c"
+run = """
+set -euo pipefail
+gh api -H 'Accept: application/vnd.github.raw' \
+  repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
+  | mise x python@3.12 -- python3 - check --env-dir "${usage_env}"
+"""

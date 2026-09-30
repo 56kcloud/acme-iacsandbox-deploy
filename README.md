@@ -25,10 +25,10 @@ all branches.
 | `engorg/mise.toml` | 1.13.5 | Full tool set: terraform, tflint, trivy, `min_version`, `[_] CONFIG_SKIP`. |
 | `prodorg/mise.toml` | 1.14.2 | Same, deliberately a different Terraform. |
 
-There is no root `mise.toml`. Every tool pin lives in the env directory, so
-scanner upgrades roll engorg → prodorg the same way Terraform does. The cost is
-that engorg and prodorg can drift for tools other than Terraform, which is
-deliberate.
+The root `mise.toml` holds only the config tasks. Every tool pin lives in the
+env directory, so scanner upgrades roll engorg → prodorg the same way
+Terraform does. The cost is that engorg and prodorg can drift for tools other
+than Terraform, which is deliberate.
 
 Without a root config, a job that forgets mise-action's `working_directory`
 installs nothing:
@@ -45,21 +45,14 @@ Vendored configs in each env dir (`.tflint.hcl`, `trivy.yaml`, `.trivyignore`,
 `.checkov.yml`, `.terraform-docs.yml`) must match the shared repo at the SHA that env's stubs pin.
 
 ```sh
-# vendor configs at the SHA deploy-engorg.yml pins (check instead of sync to verify)
-gh api -H 'Accept: application/vnd.github.raw' \
-  repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
-  | mise x python@3.12 -- python3 - sync --env-dir engorg
+mise run config:sync engorg    # vendor configs at the SHA deploy-engorg.yml pins
+mise run config:check engorg   # what CI checks
 ```
 
-To upgrade an env, pin its stub to a new tag; that also syncs its configs:
-
-```sh
-gh api -H 'Accept: application/vnd.github.raw' \
-  repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
-  | mise x python@3.12 -- python3 - pin --env-dir engorg --version v0.1.3
-```
-
-Pin `engorg` first, then `prodorg`. There are no repo-local scripts.
+The tasks live in the root `mise.toml`. Each one fetches `config_sync.py` from
+the shared repo, which re-runs itself at the version the stub pins. To upgrade
+an env, change its stub's `uses:` SHA and version comment, then run
+`config:sync` for it. Upgrade `engorg` first, then `prodorg`.
 
 ### Owning a config file
 
@@ -94,7 +87,8 @@ with branch protection on `main` requiring code owner review.
    reviewers work only in public repos, which is why this repo is public.
    "Require main for apply" in the shared workflow stops applies from other
    branches.
-4. Push the shared repo, then run the `pin` command above for each env.
+4. Push the shared repo, pin each env's stub to it, then
+   `mise run config:sync <env>`.
 5. Optional: protect `main` with required code owner review, to test
    CODEOWNERS.
 6. Later, with a bootstrapped account: pass `aws-account-id` in the stubs.
