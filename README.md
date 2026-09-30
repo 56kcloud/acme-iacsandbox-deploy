@@ -45,14 +45,14 @@ Vendored configs in each env dir (`.tflint.hcl`, `trivy.yaml`, `.trivyignore`,
 `.checkov.yml`, `.terraform-docs.yml`) must match the shared repo at the SHA that env's stubs pin.
 
 ```sh
-mise run config:sync engorg            # vendor configs at the SHA deploy-engorg.yml pins
-mise run config:check engorg           # what CI checks
-mise run workflows:pin engorg v0.1.3   # repin the workflow stub to a tag, then sync
+mise run config:sync engorg    # vendor configs at the SHA deploy-engorg.yml pins
+mise run config:check engorg   # what CI checks
 ```
 
 The tasks live in the root `mise.toml`. Each one fetches `config_sync.py` from
-the shared repo, which re-runs itself at the version the stub pins. Pin
-`engorg` first, then `prodorg`.
+the shared repo, which re-runs itself at the version the stub pins. To upgrade
+an env, change its stub's `uses:` SHA and version comment, then run
+`config:sync` for it. Upgrade `engorg` first, then `prodorg`.
 
 ### Owning a config file
 
@@ -87,7 +87,8 @@ with branch protection on `main` requiring code owner review.
    reviewers work only in public repos, which is why this repo is public.
    "Require main for apply" in the shared workflow stops applies from other
    branches.
-4. Push the shared repo, then `mise run workflows:pin <env> <version>` for each env.
+4. Push the shared repo, pin each env's stub to it, then
+   `mise run config:sync <env>`.
 5. Optional: protect `main` with required code owner review, to test
    CODEOWNERS.
 6. Later, with a bootstrapped account: pass `aws-account-id` in the stubs.

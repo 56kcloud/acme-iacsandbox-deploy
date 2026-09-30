@@ -21,17 +21,3 @@ gh api -H 'Accept: application/vnd.github.raw' \
   repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
   | mise x python@3.12 -- python3 - check --env-dir "${usage_env}"
 """
-
-[tasks."workflows:pin"]
-description = "Pin an env's deploy stub to a shared-repo tag, then sync its configs"
-usage = '''
-arg "<env>" help="Environment directory, e.g. engorg"
-arg "<version>" help="Tag of the shared repo, e.g. v0.1.3"
-'''
-shell = "bash -c"
-run = """
-set -euo pipefail
-gh api -H 'Accept: application/vnd.github.raw' \
-  repos/56kcloud/acme-iacplatform-githubworkflows/contents/scripts/config_sync.py \
-  | mise x python@3.12 -- python3 - pin --env-dir "${usage_env}" --version "${usage_version}"
-"""
